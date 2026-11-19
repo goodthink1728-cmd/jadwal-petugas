@@ -634,14 +634,12 @@ class JadwalApp {
     const personalName = document.getElementById('personalTeacherName');
     const personalNip = document.getElementById('personalTeacherNip');
     const personalRole = document.getElementById('personalTeacherRole');
-    const personalAvatar = document.getElementById('personalTeacherAvatar');
+    const personalIdBadge = document.getElementById('personalTeacherIdBadge');
 
     if (personalName) personalName.textContent = teacher.nama;
     if (personalNip) personalNip.textContent = `NIP. ${teacher.nip || '-'}`;
     if (personalRole) personalRole.textContent = `Nomor Urut Pengawas: #${teacher.id} | ${teacher.role || 'Petugas Pengawas'}`;
-    if (personalAvatar) {
-      personalAvatar.src = teacher.avatar || (this.currentAvatar === 'agus' ? 'assets/images/pak_guru_agus.jpg' : 'assets/images/bu_guru_hijab.jpg');
-    }
+    if (personalIdBadge) personalIdBadge.textContent = `#${teacher.id}`;
 
     const assignments = [];
     this.data.jadwal.forEach(sesi => {

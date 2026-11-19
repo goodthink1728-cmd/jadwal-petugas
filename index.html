@@ -26,7 +26,7 @@
 </head>
 <body>
 
-  <!-- Main Floating Application Window (Tata Letak 3 Bagian Sesuai Permintaan) -->
+  <!-- Main Floating Application Window (Tata Letak 3 Bagian) -->
   <div class="app-container">
 
     <!-- ====================================================================
@@ -94,9 +94,9 @@
             <span>Reset Filter & Sorot</span>
           </button>
 
-          <button class="btn-quick-ctrl" onclick="app.toggleAvatar()">
-            <i class="fa-solid fa-arrows-rotate"></i>
-            <span>Ganti Avatar 3D</span>
+          <button class="btn-quick-ctrl" onclick="app.printMasterSchedule()">
+            <i class="fa-solid fa-print"></i>
+            <span>Cetak Jadwal Master</span>
           </button>
         </div>
 
@@ -109,15 +109,11 @@
           <i class="fa-solid fa-sliders"></i>
           <span>Identitas Instansi</span>
         </a>
-        <a class="nav-item" data-tab="github">
-          <i class="fa-brands fa-github"></i>
-          <span>GitHub Cloud Sync</span>
-        </a>
       </nav>
 
-      <!-- Footer Info with GitHub goodthink1728 -->
+      <!-- Footer Info -->
       <div class="sidebar-footer">
-        <a href="https://github.com/goodthink1728-cmd" target="_blank" class="github-link-pill">
+        <a href="https://github.com/goodthink1728-cmd/jadwal-petugas" target="_blank" class="github-link-pill">
           <i class="fa-brands fa-github"></i>
           <span>goodthink1728</span>
         </a>
@@ -137,11 +133,11 @@
         </div>
 
         <div class="header-actions">
-          <!-- Avatar Switcher Button -->
-          <button class="avatar-switcher-pill js-toggle-avatar" title="Ganti Karakter Avatar Pixar 3D (Pak Agus / Bu Guru Hijab)">
-            <i class="fa-solid fa-arrows-rotate"></i>
-            <span>Ganti Avatar 3D</span>
-          </button>
+          <!-- Live Date & Status Pill -->
+          <div class="header-status-pill">
+            <i class="fa-solid fa-circle-check" style="color: #10B981; font-size: 11px;"></i>
+            <span>Sistem Operasional Aktif</span>
+          </div>
 
           <!-- Notification Bell -->
           <button class="header-btn" title="Notifikasi Pelaksanaan">
@@ -154,15 +150,10 @@
             <i class="fa-solid fa-print"></i>
           </button>
 
-          <!-- User Profile Badge with 3D Pixar Avatar -->
-          <div class="user-profile-badge js-toggle-avatar" title="Klik untuk ganti karakter">
-            <img id="headerAvatarImg" src="assets/images/pak_guru_agus.jpg" alt="Avatar Guru" class="avatar-img-circle">
-            <div class="user-meta">
-              <span class="user-greeting">Selamat Datang,</span>
-              <span id="headerAvatarName" class="user-name-title">Pak Agus Gunawan, S.Pd.</span>
-            </div>
-            <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: var(--text-muted); margin-left: 4px;"></i>
-          </div>
+          <!-- Quick Settings Button -->
+          <button class="header-btn" title="Pengaturan Instansi" onclick="app.openModal('settingsModal')">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
         </div>
       </header>
 
@@ -176,7 +167,7 @@
           <p id="printKopTahun" style="font-size: 11pt; margin-top: 4px;">TAHUN AJARAN 2026-2027</p>
         </div>
 
-        <!-- Hero Organization Banner -->
+        <!-- Hero Organization Banner dengan Hiasan Foto Guru Pria & Wanita Berdampingan -->
         <div class="hero-banner no-print">
           <div class="hero-info">
             <h1 id="heroKegiatanTitle"><i class="fa-solid fa-graduation-cap"></i> Asesmen Sumatif Akhir Semester (ASAS)</h1>
@@ -186,14 +177,29 @@
               <span class="hero-tag" id="heroPeriodeTag"><i class="fa-solid fa-clock"></i> 23 Nov s.d. 01 Des 2026</span>
               <span class="hero-tag"><i class="fa-solid fa-shield-halved"></i> 100% General & Universal</span>
             </div>
+            
+            <div class="hero-actions" style="margin-top: 14px;">
+              <button class="btn-hero btn-hero-white" onclick="app.downloadExcelTemplate()">
+                <i class="fa-solid fa-file-excel"></i> Template Excel
+              </button>
+              <button class="btn-hero btn-hero-glass" onclick="app.openModal('settingsModal')">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Instansi
+              </button>
+            </div>
           </div>
-          <div class="hero-actions">
-            <button class="btn-hero btn-hero-white" onclick="app.downloadExcelTemplate()">
-              <i class="fa-solid fa-file-excel"></i> Template Excel
-            </button>
-            <button class="btn-hero btn-hero-glass" onclick="app.openModal('settingsModal')">
-              <i class="fa-solid fa-pen-to-square"></i> Edit Instansi
-            </button>
+
+          <!-- FOTO GURU PRIA DAN WANITA SEBAGAI PENGHIAS (Bukan Simbol Profil Tersendiri) -->
+          <div class="hero-decorative-teachers">
+            <div class="teacher-ornament-card">
+              <div class="teacher-ornament-stack">
+                <img src="assets/images/pak_guru_agus.jpg" alt="Guru Pria 3D Pixar" class="ornament-avatar-img avatar-male" title="Bapak Guru Indonesia">
+                <img src="assets/images/bu_guru_hijab.jpg" alt="Guru Wanita 3D Pixar" class="ornament-avatar-img avatar-female" title="Ibu Guru Indonesia">
+              </div>
+              <div class="ornament-caption">
+                <div class="ornament-title"><i class="fa-solid fa-heart" style="color: #F43F5E;"></i> Bapak & Ibu Guru</div>
+                <div class="ornament-sub">Pendidik Hebat Masa Kini</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -282,9 +288,6 @@
           </button>
           <button class="tab-btn" data-tab="settings">
             <i class="fa-solid fa-building-columns"></i> Pengaturan Instansi
-          </button>
-          <button class="tab-btn" data-tab="github">
-            <i class="fa-brands fa-github"></i> GitHub Sync
           </button>
         </div>
 
@@ -443,7 +446,7 @@
             <!-- Teacher Selector Card -->
             <div class="teacher-selector-card">
               <div class="teacher-selector-left">
-                <img id="personalTeacherAvatar" src="assets/images/pak_guru_agus.jpg" alt="Avatar Guru" class="teacher-avatar-big">
+                <div class="teacher-id-badge-large" id="personalTeacherIdBadge">#18</div>
                 <div class="teacher-selector-info">
                   <h2 id="personalTeacherName">Agus Gunawan, S.Pd.</h2>
                   <p id="personalTeacherNip">NIP. 197906152005011008</p>
@@ -673,53 +676,6 @@
           </div>
         </section>
 
-        <!-- ====================================================================
-             TAB 7: GITHUB CLOUD SYNC
-             ==================================================================== -->
-        <section id="section-github" class="tab-content-section" style="display: none;">
-          <div style="display: flex; flex-direction: column; gap: 18px;">
-            <div class="filter-card" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFF; border: none;">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="font-size: 44px; color: #38BDF8;">
-                  <i class="fa-brands fa-github"></i>
-                </div>
-                <div>
-                  <h3 style="font-size: 19px; font-weight: 800; color: #FFF; margin-bottom: 4px;">
-                    Tersambung ke GitHub: <span style="color: #38BDF8;">goodthink1728</span>
-                  </h3>
-                  <p style="font-size: 12.5px; color: #94A3B8;">
-                    Akun GitHub resmi telah terhubung. Anda dapat menyinkronkan seluruh template, jadwal, dan dokumentasi langsung ke repositori cloud.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-              <div class="stat-card">
-                <div class="stat-icon mint"><i class="fa-solid fa-code-branch"></i></div>
-                <h4 style="font-size: 14px; font-weight: 800;">Repositori Proyek</h4>
-                <p style="font-size: 12px; color: var(--text-muted);">
-                  Aplikasi disimpan dan dikelola pada remote repository GitHub goodthink1728.
-                </p>
-                <a href="https://github.com/goodthink1728-cmd/jadwal-petugas" target="_blank" class="btn-filter-action btn-emerald" style="margin-top: 8px; text-decoration: none; justify-content: center;">
-                  <i class="fa-brands fa-github"></i> Buka GitHub goodthink1728
-                </a>
-              </div>
-
-              <div class="stat-card">
-                <div class="stat-icon blue"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                <h4 style="font-size: 14px; font-weight: 800;">Backup Instan ke Cloud</h4>
-                <p style="font-size: 12px; color: var(--text-muted);">
-                  Download payload data siap commit atau sinkronisasi dengan branch utama.
-                </p>
-                <button class="btn-filter-action btn-outline-emerald" style="margin-top: 8px; justify-content: center;" onclick="app.downloadJSONBackup()">
-                  <i class="fa-solid fa-download"></i> Ekspor Payload Git
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </div>
     </main>
 
@@ -782,21 +738,7 @@
         </div>
       </div>
 
-      <!-- 3D Realistic Pixar Avatar Card di Panel Kanan -->
-      <div class="pixar-avatar-card">
-        <div class="pixar-avatar-wrapper">
-          <img id="panelAvatarImg" src="assets/images/pak_guru_agus.jpg" alt="Avatar Guru 3D Pixar" class="pixar-avatar-img">
-          <div class="pixar-badge-role">3D Pixar</div>
-        </div>
-        <h3 id="panelAvatarName">Pak Agus Gunawan, S.Pd.</h3>
-        <p id="panelAvatarRole">Pengawas Utama & Koordinator</p>
-        
-        <button class="btn-switch-avatar js-toggle-avatar">
-          <i class="fa-solid fa-repeat"></i> Ganti Karakter (Pria / Wanita)
-        </button>
-      </div>
-
-      <!-- Donut Chart Arc Gauge Widget (Matching UI Reference) -->
+      <!-- Donut Chart Arc Gauge Widget -->
       <div class="gauge-card">
         <div class="gauge-title">Distribusi Keterisian Tugas</div>
 
@@ -846,6 +788,20 @@
             <span class="breakdown-val" id="statCatLainnya">165 Slot</span>
           </div>
         </div>
+      </div>
+
+      <!-- Action Card Banner -->
+      <div class="pro-card-banner">
+        <div class="pro-banner-icon">
+          <i class="fa-solid fa-file-shield" style="color: #10B981;"></i>
+        </div>
+        <div class="pro-banner-title">Cetak Dokumen Resmi</div>
+        <div class="pro-banner-desc">
+          Ekspor dokumen matriks lengkap dengan Kop Surat, NIP, dan lembar legalisasi.
+        </div>
+        <button class="btn-pro-action" onclick="app.printMasterSchedule()">
+          <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+        </button>
       </div>
 
     </aside>
