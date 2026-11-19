@@ -1,7 +1,9 @@
 /**
  * SIM-JADWAL GURU & KEGIATAN UNIVERSAL
- * Interactive Application Controller
- * Connects to GitHub goodthink1728, XLSX SheetJS, Realtime Search & Rendering
+ * Interactive Application Controller - 3-Column Architecture
+ * Bagian 1: Tombol Cepat (Pengendali Bagian Tengah)
+ * Bagian 2: Bagian Tengah (Tampilan Utama Saat Ini)
+ * Bagian 3: Bagian Kanan (Jadwal, Tabel, & Tanggal Pelaksanaan Berwarna-Warni)
  */
 
 class JadwalApp {
@@ -13,6 +15,7 @@ class JadwalApp {
     this.filterRuang = 'ALL';
     this.filterMapel = 'ALL';
     this.activeTab = 'dashboard';
+    this.rightPanelTab = 'dates'; // 'dates' | 'table' | 'personal'
     this.searchQuery = '';
 
     this.initData();
@@ -57,7 +60,6 @@ class JadwalApp {
   }
 
   initElements() {
-    // Navigation items
     this.navItems = document.querySelectorAll('[data-tab]');
     this.tabSections = document.querySelectorAll('.tab-content-section');
     this.searchInput = document.getElementById('globalSearchInput');
@@ -68,7 +70,7 @@ class JadwalApp {
   }
 
   bindEvents() {
-    // Tab switching
+    // Tab switching in Bagian Tengah
     this.navItems.forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
@@ -123,6 +125,7 @@ class JadwalApp {
         this.selectedTeacherId = parseInt(e.target.value) || 0;
         this.renderMatrix();
         this.renderPersonalSchedule();
+        this.renderRightPanel();
       });
     }
 
@@ -150,8 +153,47 @@ class JadwalApp {
         if (this.teacherHighlightSelect) {
           this.teacherHighlightSelect.value = this.selectedTeacherId;
         }
+        this.renderMatrix();
+        this.renderRightPanel();
       });
     }
+  }
+
+  // ====================================================================
+  // BAGIAN 1: TOMBOL CEPAT PENGENDALI BAGIAN TENGAH
+  // ====================================================================
+  quickHighlightTeacher(teacherId) {
+    this.selectedTeacherId = teacherId;
+    if (this.teacherHighlightSelect) this.teacherHighlightSelect.value = teacherId;
+    if (this.teacherDropdown) this.teacherDropdown.value = teacherId;
+    this.switchTab('matrix');
+    this.renderMatrix();
+    this.renderPersonalSchedule();
+    this.renderRightPanel();
+    const teacher = this.data.petugas.find(p => p.id === teacherId);
+    if (teacher) {
+      this.showToast(`⚡ Cepat: Menyorot #${teacher.id} - ${teacher.nama}`);
+    }
+  }
+
+  quickFilterDay(day) {
+    this.filterHari = day;
+    if (this.filterHariSelect) this.filterHariSelect.value = day;
+    this.switchTab('matrix');
+    this.renderMatrix();
+    this.showToast(day === 'ALL' ? 'Menampilkan seluruh hari pelaksanaan' : `Menampilkan jadwal: ${day}`);
+  }
+
+  quickResetFilter() {
+    this.filterHari = 'ALL';
+    this.filterRuang = 'ALL';
+    this.selectedTeacherId = 0;
+    if (this.filterHariSelect) this.filterHariSelect.value = 'ALL';
+    if (this.filterRuangSelect) this.filterRuangSelect.value = 'ALL';
+    if (this.teacherHighlightSelect) this.teacherHighlightSelect.value = '0';
+    this.renderMatrix();
+    this.renderRightPanel();
+    this.showToast('Seluruh filter & sorotan direset ke normal');
   }
 
   toggleAvatar() {
@@ -185,6 +227,207 @@ class JadwalApp {
     if (tabName === 'dashboard') this.renderDashboard();
   }
 
+  // ====================================================================
+  // BAGIAN 3: SWITCH SUBVIEW DI PANEL KANAN
+  // ====================================================================
+  switchRightTab(tabName) {
+    this.rightPanelTab = tabName;
+    
+    // Toggle active tab buttons
+    document.querySelectorAll('.btn-right-tab').forEach(b => {
+      if (b.getAttribute('data-right-tab') === tabName) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+
+    // Toggle subview containers
+    const viewDates = document.getElementById('rightViewDates');
+    const viewTable = document.getElementById('rightViewTable');
+    const viewPersonal = document.getElementById('rightViewPersonal');
+
+    if (viewDates) viewDates.style.display = tabName === 'dates' ? 'flex' : 'none';
+    if (viewTable) viewTable.style.display = tabName === 'table' ? 'block' : 'none';
+    if (viewPersonal) viewPersonal.style.display = tabName === 'personal' ? 'block' : 'none';
+
+    this.renderRightPanel();
+  }
+
+  renderRightPanel() {
+    this.renderDateMarkers();
+    this.renderMiniScheduleTable();
+    this.renderRightPersonalMini();
+    this.renderDonutGauge();
+  }
+
+  // Render Subview 1: Tanggal Pelaksanaan yang Di-Mark Warna-Warni Berbeda
+  renderDateMarkers() {
+    const container = document.getElementById('rightViewDates');
+    if (!container) return;
+
+    // Group schedule by days
+    const dayMap = {};
+    this.data.jadwal.forEach(j => {
+      if (!dayMap[j.hari]) {
+        dayMap[j.hari] = {
+          noHari: j.noHari || 1,
+          hari: j.hari,
+          mapels: [],
+          totalRuangSlots: 0,
+          sesiList: []
+        };
+      }
+      dayMap[j.hari].mapels.push(j.mapel);
+      dayMap[j.hari].sesiList.push(j);
+      dayMap[j.hari].totalRuangSlots += Object.keys(j.penugasan || {}).length;
+    });
+
+    const days = Object.values(dayMap);
+
+    let html = '';
+    days.forEach((d, idx) => {
+      const colorIndex = (idx % 7) + 1; // 1 to 7 distinct bright colors
+      
+      // Parse day number and month from string e.g., "Senin, 23 November 2026"
+      const parts = d.hari.split(',');
+      const dayName = parts[0] ? parts[0].trim() : 'Hari';
+      const dateParts = parts[1] ? parts[1].trim().split(' ') : ['23', 'Nov', '2026'];
+      const dateNum = dateParts[0] || `${idx + 1}`;
+      const monthShort = (dateParts[1] || 'Nov').slice(0, 3).toUpperCase();
+
+      const mapelSummary = d.mapels.join(', ');
+      const isFiltered = this.filterHari === d.hari;
+
+      html += `
+        <div class="date-marker-card day-color-${colorIndex} ${isFiltered ? 'is-active-day' : ''}" 
+             onclick="app.quickFilterDay('${d.hari}')" 
+             title="Klik untuk tampilkan jadwal ${d.hari} di bagian tengah">
+          <div class="date-badge-pill">
+            <span class="date-badge-num">${dateNum}</span>
+            <span class="date-badge-month">${monthShort}</span>
+          </div>
+
+          <div class="date-marker-info">
+            <div class="date-marker-day">
+              <span>${dayName}, ${dateNum} ${dateParts[1] || 'Nov'}</span>
+              <span class="nav-badge" style="font-size: 9.5px; background: rgba(0,0,0,0.08);">${d.sesiList.length} Sesi</span>
+            </div>
+            <div class="date-marker-mapel">${mapelSummary}</div>
+            <div class="date-marker-meta">
+              <span><i class="fa-solid fa-users"></i> ${d.totalRuangSlots} Pengawas</span>
+              <span>•</span>
+              <span style="font-weight: 700; color: #047857;"><i class="fa-solid fa-arrow-right"></i> Lihat Tengah</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Render Subview 2: Mini Tabel Jadwal Keseluruhan
+  renderMiniScheduleTable() {
+    const tbody = document.getElementById('rightMiniTableBody');
+    if (!tbody) return;
+
+    let html = '';
+    this.data.jadwal.forEach((sesi, idx) => {
+      const colorIndex = ((sesi.noHari || 1) % 7) + 1;
+      html += `
+        <tr onclick="app.quickFilterDay('${sesi.hari}')" title="Klik untuk fokus hari ${sesi.hari}">
+          <td style="font-weight: 800; width: 24px;">${idx + 1}</td>
+          <td>
+            <div style="font-weight: 700; font-size: 11px;">${sesi.mapel}</div>
+            <div style="font-size: 9.5px; color: #64748B;">${sesi.hari.split(',')[0]} (Sesi ${sesi.ke}) • ${sesi.waktu}</div>
+          </td>
+          <td style="text-align: right; font-weight: 700; color: #047857;">
+            ${Object.keys(sesi.penugasan || {}).length} Ruang
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+  }
+
+  // Render Subview 3: Mini Tabel Jadwal Guru Terpilih
+  renderRightPersonalMini() {
+    const container = document.getElementById('rightViewPersonalContent');
+    if (!container) return;
+
+    const teacher = this.data.petugas.find(p => p.id === this.selectedTeacherId) || this.data.petugas[0];
+    if (!teacher) return;
+
+    const teacherAssignments = [];
+    this.data.jadwal.forEach(sesi => {
+      if (sesi.penugasan) {
+        Object.entries(sesi.penugasan).forEach(([roomId, tId]) => {
+          if (parseInt(tId) === teacher.id) {
+            teacherAssignments.push({
+              hari: sesi.hari,
+              ke: sesi.ke,
+              waktu: sesi.waktu,
+              mapel: sesi.mapel,
+              ruang: roomId
+            });
+          }
+        });
+      }
+    });
+
+    let html = `
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">${teacher.nama}</div>
+          <div style="font-size: 10.5px; color: var(--text-muted);">#${teacher.id} • ${teacherAssignments.length} Sesi Bertugas</div>
+        </div>
+        <button class="btn-filter-action btn-outline-emerald" style="padding: 4px 8px; font-size: 10.5px;" onclick="app.switchTab('personal')">
+          Detail
+        </button>
+      </div>
+
+      <div class="mini-table-wrapper">
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th>Hari & Mapel</th>
+              <th style="width: 60px; text-align: center;">Ruang</th>
+              <th style="width: 70px;">Waktu</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    if (teacherAssignments.length === 0) {
+      html += `<tr><td colspan="3" style="text-align: center; color: #94A3B8; padding: 16px;">Belum ada tugas terjadwal</td></tr>`;
+    } else {
+      teacherAssignments.forEach(item => {
+        html += `
+          <tr onclick="app.quickFilterDay('${item.hari}')" title="Klik untuk lihat di matriks">
+            <td>
+              <div style="font-weight: 700;">${item.mapel}</div>
+              <div style="font-size: 9.5px; color: #64748B;">${item.hari.split(',')[0]} (Sesi ${item.ke})</div>
+            </td>
+            <td style="text-align: center;">
+              <span class="nav-badge" style="background: #FFE4E6; color: #E11D48; font-weight: 800;">R.${item.ruang}</span>
+            </td>
+            <td style="font-size: 10px;">${item.waktu}</td>
+          </tr>
+        `;
+      });
+    }
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    container.innerHTML = html;
+  }
+
   // Header & Avatar rendering
   renderAvatarHeader() {
     const avatarImg = document.getElementById('headerAvatarImg');
@@ -213,7 +456,7 @@ class JadwalApp {
     this.renderMatrix();
     this.renderPersonalSchedule();
     this.renderPetugasList();
-    this.renderDonutGauge();
+    this.renderRightPanel();
     this.renderSettingsForm();
   }
 
@@ -244,7 +487,6 @@ class JadwalApp {
   }
 
   populateFilterDropdowns() {
-    // Populate teacher highlight select
     if (this.teacherHighlightSelect) {
       let html = `<option value="0">-- Sorot Petugas (Semua Netral) --</option>`;
       this.data.petugas.forEach(p => {
@@ -254,7 +496,6 @@ class JadwalApp {
       this.teacherHighlightSelect.innerHTML = html;
     }
 
-    // Populate personal teacher select
     if (this.teacherDropdown) {
       let html = '';
       this.data.petugas.forEach(p => {
@@ -264,21 +505,21 @@ class JadwalApp {
       this.teacherDropdown.innerHTML = html;
     }
 
-    // Populate Hari select
     if (this.filterHariSelect) {
       const days = [...new Set(this.data.jadwal.map(j => j.hari))];
       let html = `<option value="ALL">Semua Hari / Tanggal (${days.length} Hari)</option>`;
       days.forEach(d => {
-        html += `<option value="${d}">${d}</option>`;
+        const isSel = d === this.filterHari ? 'selected' : '';
+        html += `<option value="${d}" ${isSel}>${d}</option>`;
       });
       this.filterHariSelect.innerHTML = html;
     }
 
-    // Populate Ruang select
     if (this.filterRuangSelect) {
       let html = `<option value="ALL">Semua Ruangan (1 s.d ${this.data.ruang.length})</option>`;
       this.data.ruang.forEach(r => {
-        html += `<option value="${r.id}">${r.nama}</option>`;
+        const isSel = String(r.id) === String(this.filterRuang) ? 'selected' : '';
+        html += `<option value="${r.id}" ${isSel}>${r.nama}</option>`;
       });
       this.filterRuangSelect.innerHTML = html;
     }
@@ -307,14 +548,14 @@ class JadwalApp {
     let headHtml = `
       <tr>
         <th class="sticky-col" style="min-width: 45px;">NO</th>
-        <th class="sticky-col-2" style="min-width: 150px;">HARI / TANGGAL</th>
-        <th style="min-width: 50px;">KE</th>
-        <th style="min-width: 110px;">WAKTU</th>
-        <th style="min-width: 150px;">MATA PELAJARAN</th>
+        <th class="sticky-col-2" style="min-width: 140px;">HARI / TANGGAL</th>
+        <th style="min-width: 45px;">KE</th>
+        <th style="min-width: 100px;">WAKTU</th>
+        <th style="min-width: 140px;">MATA PELAJARAN</th>
     `;
 
     activeRooms.forEach(r => {
-      headHtml += `<th title="${r.nama} - ${r.keterangan || ''}" style="min-width: 44px; font-weight:800;">${r.id}</th>`;
+      headHtml += `<th title="${r.nama} - ${r.keterangan || ''}" style="min-width: 42px; font-weight:800;">${r.id}</th>`;
     });
     headHtml += `</tr>`;
     tableHead.innerHTML = headHtml;
@@ -329,9 +570,9 @@ class JadwalApp {
       bodyHtml += `
         <tr>
           <td class="sticky-col font-bold">${index + 1}</td>
-          <td class="sticky-col-2 text-left font-semibold" style="font-size: 11.5px;">${sesi.hari}</td>
+          <td class="sticky-col-2 text-left font-semibold" style="font-size: 11px;">${sesi.hari}</td>
           <td class="font-bold">${sesi.ke}</td>
-          <td style="font-size: 11px;">${sesi.waktu}</td>
+          <td style="font-size: 10.5px;">${sesi.waktu}</td>
           <td class="text-left">
             <span class="badge-mapel ${mapelClass}">${sesi.mapel}</span>
           </td>
@@ -359,7 +600,6 @@ class JadwalApp {
 
     tableBody.innerHTML = bodyHtml;
 
-    // Update active highlight note
     const activeNote = document.getElementById('matrixActiveHighlightNote');
     if (activeNote) {
       if (this.selectedTeacherId > 0 && teacherMap[this.selectedTeacherId]) {
@@ -377,6 +617,7 @@ class JadwalApp {
     if (this.teacherDropdown) this.teacherDropdown.value = teacherId;
     this.renderMatrix();
     this.renderPersonalSchedule();
+    this.renderRightPanel();
     const teacher = this.data.petugas.find(p => p.id === teacherId);
     if (teacher) {
       this.showToast(`Menyorot #${teacher.id}: ${teacher.nama}`);
@@ -390,7 +631,6 @@ class JadwalApp {
     const teacher = this.data.petugas.find(p => p.id === this.selectedTeacherId) || this.data.petugas[0];
     if (!teacher) return;
 
-    // Update Personal Profile Card
     const personalName = document.getElementById('personalTeacherName');
     const personalNip = document.getElementById('personalTeacherNip');
     const personalRole = document.getElementById('personalTeacherRole');
@@ -403,7 +643,6 @@ class JadwalApp {
       personalAvatar.src = teacher.avatar || (this.currentAvatar === 'agus' ? 'assets/images/pak_guru_agus.jpg' : 'assets/images/bu_guru_hijab.jpg');
     }
 
-    // Find all assignments for this teacher
     const assignments = [];
     this.data.jadwal.forEach(sesi => {
       if (sesi.penugasan) {
@@ -423,20 +662,18 @@ class JadwalApp {
       }
     });
 
-    // Update Counter
     const totalTugasBadge = document.getElementById('personalTotalTugas');
     if (totalTugasBadge) totalTugasBadge.textContent = `${assignments.length} Sesi Bertugas`;
 
-    // Render Assignment Cards
     const container = document.getElementById('personalScheduleContainer');
     if (!container) return;
 
     if (assignments.length === 0) {
       container.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #FFF; border-radius: 16px; border: 1px dashed #CBD5E1;">
-          <i class="fa-solid fa-calendar-xmark" style="font-size: 40px; color: #94A3B8; margin-bottom: 10px;"></i>
-          <h3 style="font-size: 16px; font-weight: 700; color: #334155;">Belum Ada Jadwal Mengawas</h3>
-          <p style="font-size: 13px; color: #64748B;">Petugas ${teacher.nama} belum terdaftar pada sesi jadwal apapun.</p>
+        <div style="grid-column: 1 / -1; text-align: center; padding: 36px; background: #FFF; border-radius: 16px; border: 1px dashed #CBD5E1;">
+          <i class="fa-solid fa-calendar-xmark" style="font-size: 36px; color: #94A3B8; margin-bottom: 8px;"></i>
+          <h3 style="font-size: 15px; font-weight: 700; color: #334155;">Belum Ada Jadwal Mengawas</h3>
+          <p style="font-size: 12px; color: #64748B;">Petugas ${teacher.nama} belum terdaftar pada sesi jadwal apapun.</p>
         </div>
       `;
       return;
@@ -476,7 +713,6 @@ class JadwalApp {
     const container = document.getElementById('petugasListContainer');
     if (!container) return;
 
-    // Calculate duty counts for each teacher
     const dutyCounts = {};
     this.data.jadwal.forEach(sesi => {
       if (sesi.penugasan) {
@@ -509,26 +745,21 @@ class JadwalApp {
   // DASHBOARD PREVIEW
   // ====================================================================
   renderDashboard() {
-    // Renders the quick matrix preview on dashboard
     const previewBody = document.getElementById('dashboardPreviewBody');
     if (!previewBody) return;
 
-    const teacherMap = {};
-    this.data.petugas.forEach(p => { teacherMap[p.id] = p.nama; });
-
     let html = '';
-    // Show first 4 sessions as quick glimpse
     const glimse = this.data.jadwal.slice(0, 5);
     glimse.forEach((sesi, idx) => {
       html += `
         <tr style="border-bottom: 1px solid #F1F5F9;">
-          <td style="padding: 10px 12px; font-weight: 700;">${idx + 1}</td>
-          <td style="padding: 10px 12px; font-weight: 600; font-size: 12px;">${sesi.hari}</td>
-          <td style="padding: 10px 12px;"><span class="badge-mapel ${sesi.kategori || 'Umum'}">${sesi.mapel}</span></td>
-          <td style="padding: 10px 12px; font-size: 12px;">${sesi.waktu}</td>
-          <td style="padding: 10px 12px; font-weight: 700; color: #047857;">${Object.keys(sesi.penugasan || {}).length} Ruang Terplot</td>
-          <td style="padding: 10px 12px;">
-            <button class="btn-filter-action btn-outline-emerald" style="padding: 4px 10px; font-size: 11px;" onclick="app.switchTab('matrix')">Lihat Matriks</button>
+          <td style="padding: 9px 12px; font-weight: 700;">${idx + 1}</td>
+          <td style="padding: 9px 12px; font-weight: 600; font-size: 11.5px;">${sesi.hari}</td>
+          <td style="padding: 9px 12px;"><span class="badge-mapel ${sesi.kategori || 'Umum'}">${sesi.mapel}</span></td>
+          <td style="padding: 9px 12px; font-size: 11.5px;">${sesi.waktu}</td>
+          <td style="padding: 9px 12px; font-weight: 700; color: #047857;">${Object.keys(sesi.penugasan || {}).length} Ruang Terplot</td>
+          <td style="padding: 9px 12px;">
+            <button class="btn-filter-action btn-outline-emerald" style="padding: 3px 8px; font-size: 10.5px;" onclick="app.switchTab('matrix')">Lihat Matriks</button>
           </td>
         </tr>
       `;
@@ -538,7 +769,7 @@ class JadwalApp {
   }
 
   // ====================================================================
-  // DONUT GAUGE CHART & STATS (Matching 42.4 GB gauge in screenshot)
+  // DONUT GAUGE CHART & STATS
   // ====================================================================
   renderDonutGauge() {
     const totalRooms = this.data.ruang.length;
@@ -546,12 +777,7 @@ class JadwalApp {
     const maxCapacity = totalRooms * totalSessions;
 
     let assignedSlots = 0;
-    const categoryCounts = {
-      Bahasa: 0,
-      MIPA: 0,
-      Agama: 0,
-      Lainnya: 0
-    };
+    const categoryCounts = { Bahasa: 0, MIPA: 0, Agama: 0, Lainnya: 0 };
 
     this.data.jadwal.forEach(j => {
       const slots = Object.keys(j.penugasan || {}).length;
@@ -565,13 +791,11 @@ class JadwalApp {
 
     const percent = maxCapacity > 0 ? Math.round((assignedSlots / maxCapacity) * 100) : 100;
     
-    // Update donut numbers
     const bigVal = document.getElementById('donutBigVal');
     const subVal = document.getElementById('donutSubVal');
     if (bigVal) bigVal.textContent = `${percent}%`;
     if (subVal) subVal.textContent = `${assignedSlots} / ${maxCapacity} Slot Ruang`;
 
-    // Update breakdown items
     const catBahasa = document.getElementById('statCatBahasa');
     const catMipa = document.getElementById('statCatMipa');
     const catAgama = document.getElementById('statCatAgama');
@@ -593,7 +817,6 @@ class JadwalApp {
       return;
     }
 
-    // Check if matching teacher name or ID
     const foundTeacher = this.data.petugas.find(p => 
       p.nama.toLowerCase().includes(q) || 
       String(p.id) === q || 
@@ -606,6 +829,7 @@ class JadwalApp {
       if (this.teacherDropdown) this.teacherDropdown.value = foundTeacher.id;
       this.renderMatrix();
       this.renderPersonalSchedule();
+      this.renderRightPanel();
     }
   }
 
@@ -620,17 +844,13 @@ class JadwalApp {
 
     const wb = XLSX.utils.book_new();
 
-    // 1. Sheet Petugas
-    const petugasData = [
-      ["NO", "NAMA PENGAWAS", "NIP", "JABATAN", "JENIS KELAMIN"]
-    ];
+    const petugasData = [["NO", "NAMA PENGAWAS", "NIP", "JABATAN", "JENIS KELAMIN"]];
     this.data.petugas.forEach(p => {
       petugasData.push([p.id, p.nama, p.nip || "", p.role || "Pengawas", p.gender || "M"]);
     });
     const wsPetugas = XLSX.utils.aoa_to_sheet(petugasData);
     XLSX.utils.book_append_sheet(wb, wsPetugas, "Daftar Petugas");
 
-    // 2. Sheet Jadwal Mengawas
     const roomHeaders = this.data.ruang.map(r => `RUANG ${r.id}`);
     const jadwalHeaders = ["NO", "HARI/TANGGAL", "SESI", "WAKTU", "MATA PELAJARAN", "KATEGORI", ...roomHeaders];
     const jadwalRows = [jadwalHeaders];
@@ -645,7 +865,6 @@ class JadwalApp {
     const wsJadwal = XLSX.utils.aoa_to_sheet(jadwalRows);
     XLSX.utils.book_append_sheet(wb, wsJadwal, "Jadwal Mengawas");
 
-    // 3. Sheet Informasi Instansi
     const instansiRows = [
       ["KUNCI", "NILAI"],
       ["Nama Instansi", this.data.instansi.namaInstansi],
@@ -664,7 +883,6 @@ class JadwalApp {
     const wsInstansi = XLSX.utils.aoa_to_sheet(instansiRows);
     XLSX.utils.book_append_sheet(wb, wsInstansi, "Pengaturan Instansi");
 
-    // Trigger download
     const filename = `TEMPLATE_JADWAL_${this.data.instansi.namaKegiatan.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
     XLSX.writeFile(wb, filename);
     this.showToast(`Template Excel berhasil diunduh: ${filename}`);
@@ -733,7 +951,6 @@ class JadwalApp {
     let jadwalSheet = workbook.Sheets["Jadwal Mengawas"] || workbook.Sheets["Jadwal"] || (sheetNames.length > 1 ? workbook.Sheets[sheetNames[1]] : null);
     let instansiSheet = workbook.Sheets["Pengaturan Instansi"] || workbook.Sheets["Instansi"];
 
-    // 1. Parse Petugas
     if (petugasSheet) {
       const petugasJson = XLSX.utils.sheet_to_json(petugasSheet, { header: 1 });
       if (petugasJson.length > 1) {
@@ -756,14 +973,12 @@ class JadwalApp {
       }
     }
 
-    // 2. Parse Jadwal
     if (jadwalSheet) {
       const jadwalJson = XLSX.utils.sheet_to_json(jadwalSheet, { header: 1 });
       if (jadwalJson.length > 1) {
         const headerRow = jadwalJson[0];
         const newJadwal = [];
         
-        // Find which columns are rooms
         const roomCols = [];
         for (let colIdx = 6; colIdx < headerRow.length; colIdx++) {
           const headerName = String(headerRow[colIdx] || '');
@@ -772,7 +987,6 @@ class JadwalApp {
           roomCols.push({ colIdx, roomId });
         }
 
-        // Ensure room list covers all parsed rooms
         const maxRoomId = roomCols.length > 0 ? Math.max(...roomCols.map(r => r.roomId)) : 33;
         this.data.ruang = Array.from({ length: maxRoomId }, (_, i) => ({
           id: i + 1,
@@ -810,7 +1024,6 @@ class JadwalApp {
       }
     }
 
-    // 3. Parse Instansi if available
     if (instansiSheet) {
       const instansiJson = XLSX.utils.sheet_to_json(instansiSheet, { header: 1 });
       instansiJson.forEach(row => {
@@ -888,26 +1101,16 @@ class JadwalApp {
     this.showToast("Pengaturan instansi berhasil disimpan!");
   }
 
-  // ====================================================================
-  // MODALS
-  // ====================================================================
   openModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.add('open');
-    }
+    if (modal) modal.classList.add('open');
   }
 
   closeModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.remove('open');
-    }
+    if (modal) modal.classList.remove('open');
   }
 
-  // ====================================================================
-  // PRINT LAYOUTS (Cetak Resmi & Cetak Kartu Pribadi)
-  // ====================================================================
   printMasterSchedule() {
     window.print();
   }
@@ -919,9 +1122,6 @@ class JadwalApp {
     }, 250);
   }
 
-  // ====================================================================
-  // TOAST NOTIFICATION
-  // ====================================================================
   showToast(message) {
     let toast = document.getElementById('appToast');
     if (!toast) {
@@ -933,15 +1133,15 @@ class JadwalApp {
         right: 24px;
         background: #047857;
         color: #FFFFFF;
-        padding: 14px 22px;
+        padding: 12px 20px;
         border-radius: 9999px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 700;
         z-index: 9999;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         transform: translateY(100px);
         opacity: 0;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -957,7 +1157,7 @@ class JadwalApp {
     this.toastTimeout = setTimeout(() => {
       toast.style.transform = 'translateY(100px)';
       toast.style.opacity = '0';
-    }, 3200);
+    }, 3000);
   }
 }
 

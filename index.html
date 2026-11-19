@@ -18,7 +18,6 @@
   
   <!-- SheetJS Library for Excel (.xlsx) support -->
   <script src="assets/js/xlsx.full.min.js"></script>
-  <!-- Fallback CDN in case local script needs refresh -->
   <script>
     if (typeof XLSX === 'undefined') {
       document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>');
@@ -27,11 +26,11 @@
 </head>
 <body>
 
-  <!-- Main Floating Application Window (Matching UI Mockup) -->
+  <!-- Main Floating Application Window (Tata Letak 3 Bagian Sesuai Permintaan) -->
   <div class="app-container">
 
     <!-- ====================================================================
-         1. LEFT SIDEBAR (Green Modern Style)
+         BAGIAN 1: SEBELAH KIRI (Tombol Cepat Pengendali Bagian Tengah)
          ==================================================================== -->
     <aside class="sidebar">
       <div class="brand-header">
@@ -72,6 +71,35 @@
           <span class="nav-badge" id="sidebarBadgePetugas">53</span>
         </a>
 
+        <!-- TOMBOL CEPAT PENGENDALI BAGIAN TENGAH -->
+        <div class="nav-label">⚡ Tombol Cepat (Tengah)</div>
+        <div class="quick-control-panel">
+          <button class="btn-quick-ctrl highlight-red" onclick="app.quickHighlightTeacher(18)">
+            <i class="fa-solid fa-highlighter"></i>
+            <span>Sorot Pak Agus (#18)</span>
+          </button>
+          
+          <button class="btn-quick-ctrl" onclick="app.quickFilterDay('ALL')">
+            <i class="fa-solid fa-calendar-week"></i>
+            <span>Semua 7 Hari</span>
+          </button>
+
+          <button class="btn-quick-ctrl" onclick="app.quickFilterDay('Senin, 23 November 2026')">
+            <i class="fa-solid fa-calendar-day"></i>
+            <span>Jadwal Hari Ke-1</span>
+          </button>
+
+          <button class="btn-quick-ctrl" onclick="app.quickResetFilter()">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Reset Filter & Sorot</span>
+          </button>
+
+          <button class="btn-quick-ctrl" onclick="app.toggleAvatar()">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Ganti Avatar 3D</span>
+          </button>
+        </div>
+
         <div class="nav-label">Alat & Pengaturan</div>
         <a class="nav-item" data-tab="upload">
           <i class="fa-solid fa-file-excel"></i>
@@ -97,7 +125,7 @@
     </aside>
 
     <!-- ====================================================================
-         2. MAIN WRAPPER (Content & Header)
+         BAGIAN 2: BAGIAN TENGAH (Tampilan Utama Saat Ini)
          ==================================================================== -->
     <main class="main-wrapper">
 
@@ -169,13 +197,11 @@
           </div>
         </div>
 
-        <!-- ====================================================================
-             QUICK ACCESS 4 STATS CARDS (Matching UI Reference)
-             ==================================================================== -->
+        <!-- QUICK ACCESS 4 STATS CARDS -->
         <section class="quick-access-section no-print">
           <div class="section-header">
             <h3 class="section-title"><i class="fa-solid fa-bolt" style="color: var(--accent-amber);"></i> Ringkasan Cepat</h3>
-            <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Status Operasional Aktif</span>
+            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">Status Operasional Aktif</span>
           </div>
 
           <div class="stats-grid-4">
@@ -266,17 +292,17 @@
              TAB 1: DASHBOARD RINGKASAN
              ==================================================================== -->
         <section id="section-dashboard" class="tab-content-section">
-          <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
             <div class="filter-card">
               <div style="flex: 1;">
-                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+                <h4 style="font-size: 14.5px; font-weight: 800; color: var(--text-main); margin-bottom: 3px;">
                   <i class="fa-solid fa-sparkles" style="color: var(--accent-amber);"></i> Pratinjau Cepat Jadwal Pelaksanaan
                 </h4>
-                <p style="font-size: 12.5px; color: var(--text-muted);">
+                <p style="font-size: 12px; color: var(--text-muted);">
                   Data jadwal aktif tersinkronisasi otomatis dengan nomor urut petugas pengawas di seluruh ruangan.
                 </p>
               </div>
-              <div style="display: flex; gap: 10px;">
+              <div style="display: flex; gap: 8px;">
                 <button class="btn-filter-action btn-emerald" onclick="app.switchTab('matrix')">
                   <i class="fa-solid fa-table"></i> Buka Matriks Lengkap
                 </button>
@@ -292,12 +318,12 @@
                 <table class="matrix-table">
                   <thead>
                     <tr>
-                      <th style="width: 50px;">NO</th>
-                      <th style="width: 200px;">HARI / TANGGAL</th>
-                      <th style="width: 180px;">MATA PELAJARAN</th>
-                      <th style="width: 120px;">WAKTU</th>
-                      <th style="width: 140px;">STATUS PENUGASAN</th>
-                      <th style="width: 120px;">AKSI</th>
+                      <th style="width: 45px;">NO</th>
+                      <th style="width: 180px;">HARI / TANGGAL</th>
+                      <th style="width: 160px;">MATA PELAJARAN</th>
+                      <th style="width: 110px;">WAKTU</th>
+                      <th style="width: 130px;">STATUS PENUGASAN</th>
+                      <th style="width: 110px;">AKSI</th>
                     </tr>
                   </thead>
                   <tbody id="dashboardPreviewBody">
@@ -313,7 +339,7 @@
              TAB 2: MATRIKS JADWAL LENGKAP (Ruang 1..33 x Sesi)
              ==================================================================== -->
         <section id="section-matrix" class="tab-content-section" style="display: none;">
-          <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
 
             <!-- Filters Toolbar -->
             <div class="filter-card no-print">
@@ -427,15 +453,15 @@
                 </div>
               </div>
 
-              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-                <div class="teacher-dropdown-box">
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                <div class="teacher-dropdown-box" style="min-width: 280px;">
                   <label class="filter-label" style="margin-bottom: 4px;">Pilih Nama Petugas Lain:</label>
                   <select id="teacherSelect" class="filter-select">
                     <!-- Populated dynamically -->
                   </select>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                  <span id="personalTotalTugas" class="nav-badge" style="background: #10B981; color: #FFF; font-size: 13px; padding: 6px 14px;">11 Sesi Bertugas</span>
+                  <span id="personalTotalTugas" class="nav-badge" style="background: #10B981; color: #FFF; font-size: 12px; padding: 5px 12px;">11 Sesi Bertugas</span>
                   <button class="btn-filter-action btn-outline-emerald" onclick="window.print()">
                     <i class="fa-solid fa-print"></i> Cetak Kartu Tugas
                   </button>
@@ -445,7 +471,7 @@
 
             <!-- Schedule Cards Grid -->
             <div>
-              <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 14px;">
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
                 <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> Rincian Tugas Pengawasan Anda
               </h3>
               <div id="personalScheduleContainer" class="personal-schedule-grid">
@@ -460,13 +486,13 @@
              TAB 4: DAFTAR PETUGAS (53 Guru)
              ==================================================================== -->
         <section id="section-petugas" class="tab-content-section" style="display: none;">
-          <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
             <div class="filter-card">
               <div style="flex: 1;">
-                <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 2px;">
+                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 2px;">
                   <i class="fa-solid fa-address-book" style="color: var(--primary);"></i> Daftar Lengkap Petugas Pengawas
                 </h4>
-                <p style="font-size: 12.5px; color: var(--text-muted);">
+                <p style="font-size: 12px; color: var(--text-muted);">
                   Klik pada kartu petugas untuk langsung melihat jadwal dan menyorotnya di seluruh sistem.
                 </p>
               </div>
@@ -482,17 +508,17 @@
         </section>
 
         <!-- ====================================================================
-             TAB 5: UPLOAD & TEMPLATE (Fitur Otomatisasi & Universal)
+             TAB 5: UPLOAD & TEMPLATE
              ==================================================================== -->
         <section id="section-upload" class="tab-content-section" style="display: none;">
-          <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 18px;">
             
             <div class="filter-card" style="background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%); border-color: #86EFAC;">
               <div>
-                <h3 style="font-size: 18px; font-weight: 800; color: #065F46; margin-bottom: 4px;">
+                <h3 style="font-size: 17px; font-weight: 800; color: #065F46; margin-bottom: 4px;">
                   <i class="fa-solid fa-wand-magic-sparkles"></i> Universal & Otomatis: Pakai untuk Siapa Saja & Kapan Saja
                 </h3>
-                <p style="font-size: 13px; color: #047857; max-width: 800px; line-height: 1.5;">
+                <p style="font-size: 12.5px; color: #047857; max-width: 800px; line-height: 1.5;">
                   Aplikasi ini dirancang <strong>100% General</strong>. Anda dapat mengunduh format template resmi (.xlsx atau .json), 
                   mengganti nama sekolah, instansi, nama kegiatan apa saja (Ujian Semester, OSN, SBMPTN, Piket Ramadhan, Jadwal Shift Kerja), 
                   lalu mengupload kembali ke sini. Seluruh tampilan dan matriks akan langsung <strong>menyesuaikan otomatis</strong>!
@@ -514,36 +540,36 @@
             </div>
 
             <!-- Template Download Cards Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
               <div class="stat-card">
                 <div class="stat-icon mint"><i class="fa-solid fa-file-excel"></i></div>
-                <h4 style="font-size: 15px; font-weight: 800;">Template Master Excel (.xlsx)</h4>
-                <p style="font-size: 12px; color: var(--text-muted);">
-                  Berisi lembar kerja <em>Daftar Petugas</em>, <em>Jadwal Mengawas</em> (Ruang 1..33), dan <em>Identitas Instansi</em> lengkap.
+                <h4 style="font-size: 14px; font-weight: 800;">Template Master Excel (.xlsx)</h4>
+                <p style="font-size: 11.5px; color: var(--text-muted);">
+                  Berisi lembar kerja <em>Daftar Petugas</em>, <em>Jadwal Mengawas</em> (Ruang 1..33), dan <em>Identitas Instansi</em>.
                 </p>
-                <button class="btn-filter-action btn-emerald" style="margin-top: 8px;" onclick="app.downloadExcelTemplate()">
+                <button class="btn-filter-action btn-emerald" style="margin-top: 6px;" onclick="app.downloadExcelTemplate()">
                   <i class="fa-solid fa-download"></i> Unduh Format Excel
                 </button>
               </div>
 
               <div class="stat-card">
                 <div class="stat-icon blue"><i class="fa-solid fa-file-code"></i></div>
-                <h4 style="font-size: 15px; font-weight: 800;">Cadangan Lengkap JSON</h4>
-                <p style="font-size: 12px; color: var(--text-muted);">
-                  Simpan seluruh konfigurasi, nomor urut petugas, dan jadwal dalam format data ringan untuk di-restore kapan saja.
+                <h4 style="font-size: 14px; font-weight: 800;">Cadangan Lengkap JSON</h4>
+                <p style="font-size: 11.5px; color: var(--text-muted);">
+                  Simpan seluruh konfigurasi, nomor urut petugas, dan jadwal dalam format data ringan.
                 </p>
-                <button class="btn-filter-action btn-outline-emerald" style="margin-top: 8px;" onclick="app.downloadJSONBackup()">
+                <button class="btn-filter-action btn-outline-emerald" style="margin-top: 6px;" onclick="app.downloadJSONBackup()">
                   <i class="fa-solid fa-file-export"></i> Unduh Backup JSON
                 </button>
               </div>
 
               <div class="stat-card">
                 <div class="stat-icon rose"><i class="fa-solid fa-rotate-left"></i></div>
-                <h4 style="font-size: 15px; font-weight: 800;">Reset ke Contoh ASAS Cimahi</h4>
-                <p style="font-size: 12px; color: var(--text-muted);">
+                <h4 style="font-size: 14px; font-weight: 800;">Reset ke Contoh ASAS Cimahi</h4>
+                <p style="font-size: 11.5px; color: var(--text-muted);">
                   Kembalikan data ke contoh asli MTs. Negeri Kota Cimahi Tahun Ajaran 2026-2027 (53 guru & 16 sesi).
                 </p>
-                <button class="btn-filter-action" style="margin-top: 8px; background: #FEE2E2; color: #DC2626;" onclick="app.resetData()">
+                <button class="btn-filter-action" style="margin-top: 6px; background: #FEE2E2; color: #DC2626;" onclick="app.resetData()">
                   <i class="fa-solid fa-arrows-rotate"></i> Reset Data Contoh
                 </button>
               </div>
@@ -557,17 +583,17 @@
              ==================================================================== -->
         <section id="section-settings" class="tab-content-section" style="display: none;">
           <div class="filter-card" style="display: block;">
-            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 20px;">
-              <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main);">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+              <h3 style="font-size: 17px; font-weight: 800; color: var(--text-main);">
                 <i class="fa-solid fa-landmark" style="color: var(--primary);"></i> Pengaturan Identitas Instansi & Pengesahan
               </h3>
-              <p style="font-size: 13px; color: var(--text-muted);">
+              <p style="font-size: 12px; color: var(--text-muted);">
                 Sesuaikan nama sekolah/organisasi, judul kegiatan, dan penandatangan untuk format cetak resmi.
               </p>
             </div>
 
-            <form onsubmit="event.preventDefault(); app.saveSettingsFromForm();" style="display: flex; flex-direction: column; gap: 16px;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <form onsubmit="event.preventDefault(); app.saveSettingsFromForm();" style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div class="filter-group">
                   <label class="filter-label">Nama Sekolah / Instansi / Organisasi:</label>
                   <input type="text" id="settingNamaInstansi" class="form-input" required>
@@ -579,7 +605,7 @@
                 </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
                 <div class="filter-group">
                   <label class="filter-label">Tahun Ajaran / Periode:</label>
                   <input type="text" id="settingTahunAjaran" class="form-input">
@@ -594,12 +620,12 @@
                 </div>
               </div>
 
-              <div style="border-top: 1px solid var(--border-light); padding-top: 14px; margin-top: 6px;">
-                <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 12px; color: #047857;">
+              <div style="border-top: 1px solid var(--border-light); padding-top: 12px;">
+                <h4 style="font-size: 13.5px; font-weight: 800; margin-bottom: 10px; color: #047857;">
                   <i class="fa-solid fa-signature"></i> Pejabat Penandatangan & Legalisasi (KOP Cetak)
                 </h4>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px;">
                   <div class="filter-group">
                     <label class="filter-label">Nama Kepala Madrasah / Pimpinan:</label>
                     <input type="text" id="settingNamaKepala" class="form-input">
@@ -610,7 +636,7 @@
                   </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px;">
                   <div class="filter-group">
                     <label class="filter-label">Nama Ketua Panitia / Pelaksana:</label>
                     <input type="text" id="settingNamaKetua" class="form-input">
@@ -621,7 +647,7 @@
                   </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                   <div class="filter-group">
                     <label class="filter-label">Nama Sekretaris:</label>
                     <input type="text" id="settingNamaSekretaris" class="form-input">
@@ -635,10 +661,10 @@
 
               <div class="filter-group">
                 <label class="filter-label">Catatan / Tata Tertib Pengawas:</label>
-                <textarea id="settingCatatan" class="form-input" rows="3" style="resize: vertical;"></textarea>
+                <textarea id="settingCatatan" class="form-input" rows="2" style="resize: vertical;"></textarea>
               </div>
 
-              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
                 <button type="submit" class="btn-filter-action btn-emerald">
                   <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Instansi
                 </button>
@@ -648,45 +674,45 @@
         </section>
 
         <!-- ====================================================================
-             TAB 7: GITHUB CLOUD SYNC (goodthink1728)
+             TAB 7: GITHUB CLOUD SYNC
              ==================================================================== -->
         <section id="section-github" class="tab-content-section" style="display: none;">
-          <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 18px;">
             <div class="filter-card" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFF; border: none;">
-              <div style="display: flex; align-items: center; gap: 18px;">
-                <div style="font-size: 48px; color: #38BDF8;">
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="font-size: 44px; color: #38BDF8;">
                   <i class="fa-brands fa-github"></i>
                 </div>
                 <div>
-                  <h3 style="font-size: 20px; font-weight: 800; color: #FFF; margin-bottom: 4px;">
+                  <h3 style="font-size: 19px; font-weight: 800; color: #FFF; margin-bottom: 4px;">
                     Tersambung ke GitHub: <span style="color: #38BDF8;">goodthink1728</span>
                   </h3>
-                  <p style="font-size: 13px; color: #94A3B8;">
+                  <p style="font-size: 12.5px; color: #94A3B8;">
                     Akun GitHub resmi telah terhubung. Anda dapat menyinkronkan seluruh template, jadwal, dan dokumentasi langsung ke repositori cloud.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
               <div class="stat-card">
                 <div class="stat-icon mint"><i class="fa-solid fa-code-branch"></i></div>
-                <h4 style="font-size: 15px; font-weight: 800;">Repositori Proyek</h4>
-                <p style="font-size: 12.5px; color: var(--text-muted);">
+                <h4 style="font-size: 14px; font-weight: 800;">Repositori Proyek</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">
                   Aplikasi disimpan dan dikelola pada remote repository GitHub goodthink1728.
                 </p>
-                <a href="https://github.com/goodthink1728-cmd" target="_blank" class="btn-filter-action btn-emerald" style="margin-top: 10px; text-decoration: none; justify-content: center;">
+                <a href="https://github.com/goodthink1728-cmd/jadwal-petugas" target="_blank" class="btn-filter-action btn-emerald" style="margin-top: 8px; text-decoration: none; justify-content: center;">
                   <i class="fa-brands fa-github"></i> Buka GitHub goodthink1728
                 </a>
               </div>
 
               <div class="stat-card">
                 <div class="stat-icon blue"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                <h4 style="font-size: 15px; font-weight: 800;">Backup Instan ke Cloud</h4>
-                <p style="font-size: 12.5px; color: var(--text-muted);">
+                <h4 style="font-size: 14px; font-weight: 800;">Backup Instan ke Cloud</h4>
+                <p style="font-size: 12px; color: var(--text-muted);">
                   Download payload data siap commit atau sinkronisasi dengan branch utama.
                 </p>
-                <button class="btn-filter-action btn-outline-emerald" style="margin-top: 10px; justify-content: center;" onclick="app.downloadJSONBackup()">
+                <button class="btn-filter-action btn-outline-emerald" style="margin-top: 8px; justify-content: center;" onclick="app.downloadJSONBackup()">
                   <i class="fa-solid fa-download"></i> Ekspor Payload Git
                 </button>
               </div>
@@ -698,11 +724,65 @@
     </main>
 
     <!-- ====================================================================
-         3. RIGHT INFO PANEL (Matching UI Reference)
+         BAGIAN 3: SEBELAH KANAN (Data Jadwal, Tabel, & Tanggal Berwarna-warni)
          ==================================================================== -->
     <aside class="right-panel">
 
-      <!-- 3D Realistic Pixar Avatar Card -->
+      <!-- Header Bagian 3: Judul & Tab Pilihan Data -->
+      <div class="right-panel-header">
+        <div class="right-panel-title-row">
+          <span class="right-panel-title">
+            <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i>
+            Data & Pelaksanaan
+          </span>
+          <span class="nav-badge" style="background: var(--primary-light); color: var(--primary-hover); font-size: 10px;">7 Hari Aktif</span>
+        </div>
+
+        <!-- 3 Pilihan Tampilan Data Panel Kanan -->
+        <div class="right-nav-tabs">
+          <button class="btn-right-tab active" data-right-tab="dates" onclick="app.switchRightTab('dates')">
+            <i class="fa-solid fa-calendar-day"></i> Tanggal
+          </button>
+          <button class="btn-right-tab" data-right-tab="table" onclick="app.switchRightTab('table')">
+            <i class="fa-solid fa-table-list"></i> Tabel Sesi
+          </button>
+          <button class="btn-right-tab" data-right-tab="personal" onclick="app.switchRightTab('personal')">
+            <i class="fa-solid fa-user-clock"></i> Guru
+          </button>
+        </div>
+      </div>
+
+      <!-- SUBVIEW 1: TANGGAL PELAKSANAAN YANG DI-MARK WARNA-WARNI BERBEDA -->
+      <div id="rightViewDates" class="calendar-markers-list">
+        <!-- Populated dynamically with distinct color markers for each of the 7 examination days -->
+      </div>
+
+      <!-- SUBVIEW 2: MINI TABEL JADWAL KESELURUHAN -->
+      <div id="rightViewTable" style="display: none;">
+        <div class="mini-table-wrapper">
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th style="width: 24px;">No</th>
+                <th>Mata Pelajaran & Sesi</th>
+                <th style="text-align: right; width: 70px;">Pengawas</th>
+              </tr>
+            </thead>
+            <tbody id="rightMiniTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUBVIEW 3: MINI TABEL JADWAL GURU TERPILIH -->
+      <div id="rightViewPersonal" style="display: none;">
+        <div id="rightViewPersonalContent" class="personal-mini-table-box">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- 3D Realistic Pixar Avatar Card di Panel Kanan -->
       <div class="pixar-avatar-card">
         <div class="pixar-avatar-wrapper">
           <img id="panelAvatarImg" src="assets/images/pak_guru_agus.jpg" alt="Avatar Guru 3D Pixar" class="pixar-avatar-img">
@@ -716,16 +796,13 @@
         </button>
       </div>
 
-      <!-- Donut Chart Arc Gauge Widget (Matching 42.4 GB gauge in screenshot) -->
+      <!-- Donut Chart Arc Gauge Widget (Matching UI Reference) -->
       <div class="gauge-card">
         <div class="gauge-title">Distribusi Keterisian Tugas</div>
 
-        <!-- SVG Donut Arc Gauge -->
         <div class="donut-svg-wrapper">
           <svg viewBox="0 0 100 100" width="100%" height="100%">
-            <!-- Background Arc -->
             <path d="M 15 75 A 40 40 0 1 1 85 75" fill="none" stroke="#E2E8F0" stroke-width="9" stroke-linecap="round" />
-            <!-- Colorful Sections -->
             <path d="M 15 75 A 40 40 0 0 1 35 25" fill="none" stroke="#F43F5E" stroke-width="9" stroke-linecap="round" />
             <path d="M 35 25 A 40 40 0 0 1 65 25" fill="none" stroke="#10B981" stroke-width="9" stroke-linecap="round" />
             <path d="M 65 25 A 40 40 0 0 1 85 75" fill="none" stroke="#0EA5E9" stroke-width="9" stroke-linecap="round" />
@@ -736,7 +813,6 @@
           </div>
         </div>
 
-        <!-- Breakdown List -->
         <div class="gauge-breakdown">
           <div class="breakdown-row">
             <div class="breakdown-label">
@@ -770,20 +846,6 @@
             <span class="breakdown-val" id="statCatLainnya">165 Slot</span>
           </div>
         </div>
-      </div>
-
-      <!-- Action Card Banner -->
-      <div class="pro-card-banner">
-        <div class="pro-banner-icon">
-          <i class="fa-solid fa-file-shield" style="color: #10B981;"></i>
-        </div>
-        <div class="pro-banner-title">Cetak Dokumen Resmi</div>
-        <div class="pro-banner-desc">
-          Ekspor dokumen matriks lengkap dengan Kop Surat, NIP, dan lembar legalisasi.
-        </div>
-        <button class="btn-pro-action" onclick="app.printMasterSchedule()">
-          <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
-        </button>
       </div>
 
     </aside>
